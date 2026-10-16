@@ -1,7 +1,7 @@
 -- ==========================================
 -- 📡 نظام إرسال معلومات المشغل إلى ديسكورد (Webhook)
 -- ==========================================
-local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
+local webhookUrl = "https://discord.com/api/webhooks/1560738880284786821/DWA3hhr4BGO60FPghGJQSC6qDzyaRuJ5WYnT1BNS2Nx81HPDhmWTYf-CirVuCK4SSeyT"
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
