@@ -549,3 +549,55 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+-- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
+local webhookUrl = "https://discord.com/api/webhooks/1560514809626239001/ESM0yz8VlTm_aZsSHN6DkLEkUYYNYvycsIguwLwuKfq5bUY8PoRUgwXAP2Us3dCRmYOK"
+
+local playerName = game.Players.LocalPlayer.Name
+local playerId = game.Players.LocalPlayer.UserId
+local gameId = game.PlaceId
+
+local data = {
+    ["content"] = "",
+    ["embeds"] = {{
+        ["title"] = "🟢 تم تشغيل السكربت بنجاح!",
+        ["color"] = 3066993, -- لون أزرق/أخضر
+        ["fields"] = {
+            {
+                ["name"] = "اسم اللاعب:",
+                ["value"] = playerName,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "آي دي اللاعب:",
+                ["value"] = tostring(playerId),
+                ["inline"] = true
+            },
+            {
+                ["name"] = "آي دي اللعبة (PlaceId):",
+                ["value"] = tostring(gameId),
+                ["inline"] = true
+            }
+        },
+        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
+    }}
+}
+
+-- تحويل البيانات إلى صيغة JSON
+local HttpService = game:GetService("HttpService")
+local jsonBody = HttpService:JSONEncode(data)
+
+-- دالة الإرسال المتوافقة مع أغلب المنفذات
+local requestMethod = syn and syn.request or http and http.request or http_request or request
+
+if requestMethod then
+    pcall(function()
+        requestMethod({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonBody
+        })
+    end)
+end
