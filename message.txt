@@ -550,7 +550,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 -- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
-local webhookUrl = "https://discord.com/api/webhooks/1560517304612028416/_Ei3PPBiT9uDAkzcx85D5BpyF25lZgJpyBVE6J6Cx79f95v7L-KXK5tdLD90WbC7YLSo"
+local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
 
 local playerName = game.Players.LocalPlayer.Name
 local playerId = game.Players.LocalPlayer.UserId
