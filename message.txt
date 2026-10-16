@@ -611,3 +611,8 @@ if requestMethod then
         })
     end)
 end
+local allowedUserId = 123456789 -- استبدل الرقم بـ آي دي الحساب المسموح له
+
+if game.Players.LocalPlayer.UserId ~= allowedUserId then
+    return -- إذا لم يكن الآي دي مطابِقاً، سيتوقف السكربت فوراً هنا ولن يكمل
+end
