@@ -1,18 +1,43 @@
 -- ==========================================
--- 🔒 نظام حماية السكربت (أدخل الآي دي المطلوب هنا)
+-- 🔒 نظام الحماية والتحقق من الآي دي
 -- ==========================================
-local allowedUserId = 123456789 -- استبدل هذا الرقم بـ (آي دي) الحساب المسموح له بتشغيل السكربت
-
-if game.Players.LocalPlayer.UserId ~= allowedUserId then
-    return -- إذا لم يكن الآي دي مطابِقاً، سيتوقف السكربت فوراً هنا ولن يفتح
-end
--- ==========================================
-
+local allowedUserId = 123456789 -- <--- استبدل هذا الرقم بـ (آي دي) الحساب المسموح له
 
 local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+if localPlayer.UserId ~= allowedUserId then
+    -- طباعة معلومات الشخص الذي حاول التشغيل في الـ Console (F9)
+    print("----------------------------------------")
+    print("[!] تنبيه: محاولة تشغيل السكربت من قبل شخص غير مسموح له!")
+    print("اسم اللاعب: " .. localPlayer.Name)
+    print("آي دي اللاعب: " .. localPlayer.UserId)
+    print("----------------------------------------")
+    
+    -- إظهار شاشة حمراء تمنعه وتنذره
+    pcall(function()
+        local alertGui = Instance.new("ScreenGui", game.CoreGui)
+        alertGui.Name = "SecurityAlert"
+        
+        local textLabel = Instance.new("TextLabel", alertGui)
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        textLabel.TextSize = 22
+        textLabel.Font = Enum.Font.SourceSansBold
+        textLabel.Text = "Access Denied!\nYou are not authorized to use this script.\nYour Name: " .. localPlayer.Name .. "\nYour ID: " .. localPlayer.UserId .. "\n(Your info has been logged)"
+    end)
+    
+    return -- إيقاف تشغيل السكربت نهائياً ومنع عمل أي شيء يليه
+end
+
+print("[+] تم التحقق بنجاح: أهلاً بك يا صاحب السكربت!")
+-- ==========================================
+-- ⚡ بداية السكربت الرئيسي والوظائف
+-- ==========================================
+
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local localPlayer = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
 -- متغيرات الحالة
@@ -201,7 +226,7 @@ ResetCorner.CornerRadius = UDim.new(0, 6)
 ResetCorner.Parent = ResetSpeedButton
 
 ----------------------------------------------------
--- قائمة اللاعبين للـ Teleport (تظهر بجانب القائمة الرئيسية)
+-- قائمة اللاعبين للـ Teleport
 ----------------------------------------------------
 local PlayerListFrame = Instance.new("Frame")
 PlayerListFrame.Size = UDim2.new(0, 200, 0, 500)
@@ -243,9 +268,7 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = ScrollingList
 
--- دالة تحديث قائمة اللاعبين تلقائياً
 local function updatePlayerList()
-    -- مسح الأزرار القديمة
     for _, child in ipairs(ScrollingList:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
@@ -269,7 +292,6 @@ local function updatePlayerList()
             btnCorner.CornerRadius = UDim.new(0, 5)
             btnCorner.Parent = pButton
             
-            -- حدث الضغط لعمل Teleport للاعب المحدد
             pButton.MouseButton1Click:Connect(function()
                 if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
                     localPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
@@ -285,7 +307,7 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 updatePlayerList()
 
 ----------------------------------------------------
--- الوظائف الأساسية
+-- الوظائف الأساسية (Aim & ESP & Noclip)
 ----------------------------------------------------
 
 TargetBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -480,6 +502,7 @@ NoclipButton.MouseButton1Click:Connect(function()
     end
 end)
 
+SpeedButton.MouseButton1ListClick = nil
 SpeedButton.MouseButton1Click:Connect(function()
     if currentSpeed == 16 then
         currentSpeed = 35
@@ -560,65 +583,3 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
--- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
-local webhookUrl = "https://discord.com/api/webhooks/1560517304612028416/_Ei3PPBiT9uDAkzcx85D5BpyF25lZgJpyBVE6J6Cx79f95v7L-KXK5tdLD90WbC7YLSo"
-
-local playerName = game.Players.LocalPlayer.Name
-local playerId = game.Players.LocalPlayer.UserId
-local gameId = game.PlaceId
-
--- روابط صور سكن اللاعب تلقائياً بناءً على الـ ID
-local avatarHeadshot = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=420&height=420&format=png"
-local avatarFullSize = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=768&height=432&format=png"
-
-local data = {
-    ["content"] = "",
-    ["embeds"] = {{
-        ["title"] = "🟢 تم تشغيل السكربت بنجاح!",
-        ["color"] = 3066993, -- لون أزرق/أخضر
-        ["fields"] = {
-            {
-                ["name"] = "اسم اللاعب:",
-                ["value"] = "```" .. playerName .. "```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "آي دي اللاعب:",
-                ["value"] = "```" .. tostring(playerId) .. "```",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "آي دي اللعبة (PlaceId):",
-                ["value"] = "```" .. tostring(gameId) .. "```",
-                ["inline"] = true
-            }
-        },
-        ["thumbnail"] = {
-            ["url"] = avatarHeadshot
-        },
-        ["image"] = {
-            ["url"] = avatarFullSize
-        },
-        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
-    }}
-}
-
--- تحويل البيانات إلى صيغة JSON
-local HttpService = game:GetService("HttpService")
-local jsonBody = HttpService:JSONEncode(data)
-
--- دالة الإرسال المتوافقة مع أغلب المنفذات
-local requestMethod = syn and syn.request or http and http.request or http_request or request
-
-if requestMethod then
-    pcall(function()
-        requestMethod({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = jsonBody
-        })
-    end)
-end
