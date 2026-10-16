@@ -517,11 +517,11 @@ SpeedButton.MouseButton1Click:Connect(function()
     if currentSpeed == 16 then
         currentSpeed = 55
         SpeedButton.Text = "السرعة: 55 (سريع)"
-    elseif currentSpeed == 35 then
-        currentSpeed = 120
-        SpeedButton.Text = "السرعة: 120 (سريع جداً)"
+    elseif currentSpeed == 55 then
+        currentSpeed = 55
+        SpeedButton.Text = "السرعة: 100 (سريع جداً)"
     else
-        currentSpeed = 16
+        currentSpeed = 100
         SpeedButton.Text = "السرعة: 16 (عادية)"
     end
 end)
