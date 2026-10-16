@@ -1,8 +1,13 @@
-local allowedUserId = 10520600074, -- استبدل الرقم بـ آي دي الحساب المسموح له
+-- ==========================================
+-- 🔒 نظام حماية السكربت (أدخل الآي دي المطلوب هنا)
+-- ==========================================
+local allowedUserId = 123456789 -- استبدل هذا الرقم بـ (آي دي) الحساب المسموح له بتشغيل السكربت
 
 if game.Players.LocalPlayer.UserId ~= allowedUserId then
-    return -- إذا لم يكن الآي دي مطابِقاً، سيتوقف السكربت فوراً هنا ولن يكمل
+    return -- إذا لم يكن الآي دي مطابِقاً، سيتوقف السكربت فوراً هنا ولن يفتح
 end
+-- ==========================================
+
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -556,7 +561,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 -- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
-local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
+local webhookUrl = "https://discord.com/api/webhooks/1560517304612028416/_Ei3PPBiT9uDAkzcx85D5BpyF25lZgJpyBVE6J6Cx79f95v7L-KXK5tdLD90WbC7YLSo"
 
 local playerName = game.Players.LocalPlayer.Name
 local playerId = game.Players.LocalPlayer.UserId
@@ -569,7 +574,7 @@ local avatarFullSize = "https://www.roblox.com/headshot-thumbnail/image?userId="
 local data = {
     ["content"] = "",
     ["embeds"] = {{
-        ["title"] = ":green_circle: تم تشغيل السكربت بنجاح!",
+        ["title"] = "🟢 تم تشغيل السكربت بنجاح!",
         ["color"] = 3066993, -- لون أزرق/أخضر
         ["fields"] = {
             {
