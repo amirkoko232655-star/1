@@ -1,13 +1,55 @@
 -- ==========================================
--- 🔒 نظام الحماية والتحقق من الآي دي
+-- 🔒 نظام الحماية والربط مع ديسكورد (Webhook)
 -- ==========================================
-local allowedUserId = 123456789 -- <--- استبدل هذا الرقم بـ (آي دي) الحساب المسموح له
+local allowedUserId = 123456789 -- <--- (ملاحظة: استبدل هذا الرقم بـ آي دي حسابك في روبلوكس لمنع حظرك أنت)
+local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
 
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
+-- دالة لإرسال البيانات إلى ديسكورد عبر الـ Webhook
+local function sendDiscordAlert(isAuthorized)
+    pcall(function()
+        local titleText = isAuthorized and "🟢 تم تشغيل السكربت بنجاح (المطور)" or "🔴 تنبيه: محاولة تشغيل سكربت من قبل شخص غير مسموح!"
+        local embedColor = isAuthorized and 65280 or 16711680 -- أخضر للأصلي، أحمر للمتطفل
+        
+        local data = {
+            ["embeds"] = {{
+                ["title"] = titleText,
+                ["color"] = embedColor,
+                ["fields"] = {
+                    {["name"] = "👤 اسم اللاعب:", ["value"] = localPlayer.Name, ["inline"] = true},
+                    {["name"] = "🆔 الآي دي (ID):", ["value"] = tostring(localPlayer.UserId), ["inline"] = true},
+                    {["name"] = "🔗 رابط الحساب:", ["value"] = "https://www.roblox.com/users/" .. tostring(localPlayer.UserId) .. "/profile", ["inline"] = false},
+                    {["name"] = "⏰ الوقت:", ["value"] = os.date("%Y-%m-%d %H:%M:%S"), ["inline"] = false}
+                },
+                ["footer"] = {
+                    ["text"] = "ระบบป้องกัน Script By Gemini 3.8 Flash"
+                }
+            }}
+        }
+        
+        local encodedData = HttpService:JSONEncode(data)
+        
+        -- إرسال الطلب للـ Webhook
+        request({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = encodedData
+        })
+    end)
+end
+
+-- التحقق من الصلاحيات
 if localPlayer.UserId ~= allowedUserId then
-    -- طباعة معلومات الشخص الذي حاول التشغيل في الـ Console (F9)
+    -- إرسال تنبيه للديسكورد بأن شخصاً غريباً حاول التشغيل
+    sendDiscordAlert(false)
+    
+    -- طباعة معلومات الشخص في الـ Console (F9)
     print("----------------------------------------")
     print("[!] تنبيه: محاولة تشغيل السكربت من قبل شخص غير مسموح له!")
     print("اسم اللاعب: " .. localPlayer.Name)
@@ -25,13 +67,16 @@ if localPlayer.UserId ~= allowedUserId then
         textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
         textLabel.TextSize = 22
         textLabel.Font = Enum.Font.SourceSansBold
-        textLabel.Text = "Access Denied!\nYou are not authorized to use this script.\nYour Name: " .. localPlayer.Name .. "\nYour ID: " .. localPlayer.UserId .. "\n(Your info has been logged)"
+        textLabel.Text = "Access Denied!\nYou are not authorized to use this script.\nYour Name: " .. localPlayer.Name .. "\nYour ID: " .. localPlayer.UserId .. "\n(Your info has been logged & sent to Discord)"
     end)
     
-    return -- إيقاف تشغيل السكربت نهائياً ومنع عمل أي شيء يليه
+    return -- إيقاف تشغيل السكربت نهائياً
+else
+    -- إرسال إشعار للديسكورد بأن المطور قام بتشغيل السكربت
+    sendDiscordAlert(true)
+    print("[+] تم التحقق بنجاح: أهلاً بك يا صاحب السكربت!")
 end
 
-print("[+] تم التحقق بنجاح: أهلاً بك يا صاحب السكربت!")
 -- ==========================================
 -- ⚡ بداية السكربت الرئيسي والوظائف
 -- ==========================================
@@ -502,7 +547,6 @@ NoclipButton.MouseButton1Click:Connect(function()
     end
 end)
 
-SpeedButton.MouseButton1ListClick = nil
 SpeedButton.MouseButton1Click:Connect(function()
     if currentSpeed == 16 then
         currentSpeed = 35
