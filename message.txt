@@ -56,7 +56,8 @@ local isAiming = false
 local noclipEnabled = false
 local wallCheckEnabled = true
 local espEnabled = false
-local currentSpeed = 16
+local speedEnabled = false
+local customSpeed = 16
 local targetUsername = ""
 local fovRadius = 150
 
@@ -107,7 +108,7 @@ Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 15
 Title.Font = Enum.Font.SourceSansBold
-Title.Text = "لوحة التحكم المتطورة (T للتتبع)"
+Title.Text = "لوحة التحكم (T للتتبع | B للسرعة)"
 Title.Parent = MainFrame
 
 local TitleCorner = Instance.new("UICorner")
@@ -121,7 +122,7 @@ TargetBox.Position = UDim2.new(0.05, 0, 0.08, 0)
 TargetBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 TargetBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 TargetBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
-TargetBox.PlaceholderText = "اكتب اسم اللاعب للتتبع (أو اتركه فارغاً)"
+TargetBox.PlaceholderText = "اكتب اسم اللاعب للتتبع"
 TargetBox.Text = ""
 TargetBox.TextSize = 12
 TargetBox.Font = Enum.Font.SourceSans
@@ -206,35 +207,37 @@ local NoclipCorner = Instance.new("UICorner")
 NoclipCorner.CornerRadius = UDim.new(0, 6)
 NoclipCorner.Parent = NoclipButton
 
--- زر زيادة السرعة
+-- خانة كتابة السرعة المخصصة
+local SpeedBox = Instance.new("TextBox")
+SpeedBox.Size = UDim2.new(0.9, 0, 0, 30)
+SpeedBox.Position = UDim2.new(0.05, 0, 0.56, 0)
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+SpeedBox.PlaceholderText = "اكتب السرعة هنا (مثال: 50)"
+SpeedBox.Text = ""
+SpeedBox.TextSize = 12
+SpeedBox.Font = Enum.Font.SourceSans
+SpeedBox.Parent = MainFrame
+
+local SpeedBoxCorner = Instance.new("UICorner")
+SpeedBoxCorner.CornerRadius = UDim.new(0, 6)
+SpeedBoxCorner.Parent = SpeedBox
+
+-- زر تفعيل/إيقاف السرعة (B)
 local SpeedButton = Instance.new("TextButton")
 SpeedButton.Size = UDim2.new(0.9, 0, 0, 35)
-SpeedButton.Position = UDim2.new(0.05, 0, 0.56, 0)
-SpeedButton.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+SpeedButton.Position = UDim2.new(0.05, 0, 0.63, 0)
+SpeedButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 SpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 SpeedButton.TextSize = 14
 SpeedButton.Font = Enum.Font.SourceSansBold
-SpeedButton.Text = "السرعة: 16 (عادية)"
+SpeedButton.Text = "السرعة (B): معطلة"
 SpeedButton.Parent = MainFrame
 
 local SpeedCorner = Instance.new("UICorner")
 SpeedCorner.CornerRadius = UDim.new(0, 6)
 SpeedCorner.Parent = SpeedButton
-
--- زر إعادة تعيين السرعة
-local ResetSpeedButton = Instance.new("TextButton")
-ResetSpeedButton.Size = UDim2.new(0.9, 0, 0, 30)
-ResetSpeedButton.Position = UDim2.new(0.05, 0, 0.65, 0)
-ResetSpeedButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-ResetSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ResetSpeedButton.TextSize = 12
-ResetSpeedButton.Font = Enum.Font.SourceSans
-ResetSpeedButton.Text = "إعادة تعيين السرعة"
-ResetSpeedButton.Parent = MainFrame
-
-local ResetCorner = Instance.new("UICorner")
-ResetCorner.CornerRadius = UDim.new(0, 6)
-ResetCorner.Parent = ResetSpeedButton
 
 ----------------------------------------------------
 -- قائمة اللاعبين للـ Teleport
@@ -318,144 +321,48 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 updatePlayerList()
 
 ----------------------------------------------------
--- الوظائف الأساسية (Aim & ESP & Noclip)
+-- الوظائف الأساسية
 ----------------------------------------------------
 
 TargetBox:GetPropertyChangedSignal("Text"):Connect(function()
     targetUsername = TargetBox.Text
 end)
 
-local function isVisible(targetPart)
-    if not wallCheckEnabled then return true end
-    if not localPlayer.Character or not localPlayer.Character:FindFirstChild("Head") then return false end
-    
-    local origin = camera.CFrame.Position
-    local direction = (targetPart.Position - origin)
-    
-    local raycastParams = RaycastParams.new()
-    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    local filterList = {localPlayer.Character}
-    if targetPart.Parent then
-        table.insert(filterList, targetPart.Parent)
-    end
-    raycastParams.FilterDescendantsInstances = filterList
-    raycastParams.IgnoreWater = true
-    
-    local raycastResult = workspace:Raycast(origin, direction, raycastParams)
-    return raycastResult == nil
-end
-
-local function createESP(player)
-    if player == localPlayer then return end
-    
-    local espBox = Drawing.new("Square")
-    espBox.Visible = false
-    espBox.Color = Color3.fromRGB(255, 0, 0)
-    espBox.Thickness = 2
-    espBox.Filled = false
-
-    local espText = Drawing.new("Text")
-    espText.Visible = false
-    espText.Color = Color3.fromRGB(255, 255, 255)
-    espText.Size = 14
-    espText.Center = true
-    espText.Outline = true
-
-    espObjects[player] = {Box = espBox, Text = espText}
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-    createESP(player)
-end
-
-Players.PlayerAdded:Connect(createESP)
-
-Players.PlayerRemoving:Connect(function(player)
-    if espObjects[player] then
-        espObjects[player].Box:Remove()
-        espObjects[player].Text:Remove()
-        espObjects[player] = nil
+SpeedBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local val = tonumber(SpeedBox.Text)
+    if val then
+        customSpeed = val
+    else
+        customSpeed = 16
     end
 end)
 
-local function getTarget()
-    local screenSize = camera.ViewportSize
-    local screenCenter = Vector2.new(screenSize.X / 2, screenSize.Y / 2)
-    
-    if targetUsername ~= "" then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= localPlayer and (string.sub(string.lower(player.Name), 1, #targetUsername) == string.lower(targetUsername) or string.sub(string.lower(player.DisplayName), 1, #targetUsername) == string.lower(targetUsername)) then
-                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        if player.Team ~= localPlayer.Team or not localPlayer.Team then
-                            local rootPart = player.Character.HumanoidRootPart
-                            local screenPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
-                            if onScreen then
-                                local distanceToCenter = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
-                                if distanceToCenter <= fovRadius then
-                                    if isVisible(rootPart) then
-                                        return rootPart
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        return nil
-    end
-
-    local closestTarget = nil
-    local shortestDistance = math.huge
-    
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer then
-            if not localPlayer.Team or player.Team ~= localPlayer.Team then
-                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        local rootPart = player.Character.HumanoidRootPart
-                        local screenPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
-                        
-                        if onScreen then
-                            local distanceToCenter = (Vector2.new(screenPos.X, screenPos.Y) - screenCenter).Magnitude
-                            if distanceToCenter <= fovRadius then
-                                if isVisible(rootPart) then
-                                    if distanceToCenter < shortestDistance then
-                                        shortestDistance = distanceToCenter
-                                        closestTarget = rootPart
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    return closestTarget
-end
-
-local function toggleAim()
-    isAiming = not isAiming
-    if isAiming then
-        AimButton.Text = "التتبع (Aimlock): مفعل"
-        AimButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+local function toggleSpeed()
+    speedEnabled = not speedEnabled
+    if speedEnabled then
+        SpeedButton.Text = "السرعة (B): مفعلة (" .. customSpeed .. ")"
+        SpeedButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
     else
-        AimButton.Text = "التتبع (Aimlock): معطل"
-        AimButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        SpeedButton.Text = "السرعة (B): معطلة"
+        SpeedButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     end
 end
 
-AimButton.MouseButton1Click:Connect(toggleAim)
+SpeedButton.MouseButton1Click:Connect(toggleSpeed)
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed then
         if input.KeyCode == Enum.KeyCode.T then
-            toggleAim()
+            isAiming = not isAiming
+            if isAiming then
+                AimButton.Text = "التتبع (Aimlock): مفعل"
+                AimButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+            else
+                AimButton.Text = "التتبع (Aimlock): معطل"
+                AimButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+            end
+        elseif input.KeyCode == Enum.KeyCode.B then
+            toggleSpeed()
         end
     end
 end)
@@ -513,24 +420,6 @@ NoclipButton.MouseButton1Click:Connect(function()
     end
 end)
 
-SpeedButton.MouseButton1Click:Connect(function()
-    if currentSpeed == 16 then
-        currentSpeed = 55
-        SpeedButton.Text = "السرعة: 55 (سريع)"
-    elseif currentSpeed == 100 then
-        currentSpeed = 100
-        SpeedButton.Text = "السرعة: 100 (سريع جداً)"
-    else
-        currentSpeed = 100
-        SpeedButton.Text = "السرعة: 16 (عادية)"
-    end
-end)
-
-ResetSpeedButton.MouseButton1Click:Connect(function()
-    currentSpeed = 16
-    SpeedButton.Text = "السرعة: 16 (عادية)"
-end)
-
 RunService.Stepped:Connect(function()
     if noclipEnabled and localPlayer.Character then
         for _, part in ipairs(localPlayer.Character:GetDescendants()) do
@@ -547,7 +436,12 @@ RunService.RenderStepped:Connect(function()
     FOVCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
 
     if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
-        localPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = currentSpeed
+        local humanoid = localPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if speedEnabled then
+            humanoid.WalkSpeed = customSpeed
+        else
+            humanoid.WalkSpeed = 16
+        end
     end
 
     for player, objs in pairs(espObjects) do
