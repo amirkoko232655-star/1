@@ -207,20 +207,36 @@ NoclipCorner.CornerRadius = UDim.new(0, 6)
 NoclipCorner.Parent = NoclipButton
 
 -- زر زيادة السرعة
+local SpeedBox = Instance.new("TextBox")
+SpeedBox.Size = UDim2.new(0.9, 0, 0, 30)
+SpeedBox.Position = UDim2.new(0.05, 0, 0.56, 0)
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+SpeedBox.PlaceholderText = "اكتب السرعة هنا (مثال: 50)"
+SpeedBox.Text = ""
+SpeedBox.TextSize = 12
+SpeedBox.Font = Enum.Font.SourceSans
+SpeedBox.Parent = MainFrame
+
+local SpeedBoxCorner = Instance.new("UICorner")
+SpeedBoxCorner.CornerRadius = UDim.new(0, 6)
+SpeedBoxCorner.Parent = SpeedBox
+
+-- زر تفعيل/إيقاف السرعة (B)
 local SpeedButton = Instance.new("TextButton")
 SpeedButton.Size = UDim2.new(0.9, 0, 0, 35)
-SpeedButton.Position = UDim2.new(0.05, 0, 0.56, 0)
-SpeedButton.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+SpeedButton.Position = UDim2.new(0.05, 0, 0.63, 0)
+SpeedButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 SpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 SpeedButton.TextSize = 14
 SpeedButton.Font = Enum.Font.SourceSansBold
-SpeedButton.Text = "السرعة: 16 (عادية)"
+SpeedButton.Text = "السرعة (B): معطلة"
 SpeedButton.Parent = MainFrame
 
 local SpeedCorner = Instance.new("UICorner")
 SpeedCorner.CornerRadius = UDim.new(0, 6)
-SpeedCorner.Parent = SpeedButton
-
+SpeedCorner.Parent = SpeedButton\
 -- زر إعادة تعيين السرعة
 local ResetSpeedButton = Instance.new("TextButton")
 ResetSpeedButton.Size = UDim2.new(0.9, 0, 0, 30)
