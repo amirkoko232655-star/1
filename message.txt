@@ -1,7 +1,7 @@
 -- ==========================================
 -- 🔒 نظام الحماية والربط مع ديسكورد (Webhook)
 -- ==========================================
-local allowedUserId = 123456789 -- <--- (ملاحظة: استبدل هذا الرقم بـ آي دي حسابك في روبلوكس لمنع حظرك أنت)
+local allowedUserId = 2900978092 -- <--- (ملاحظة: استبدل هذا الرقم بـ آي دي حسابك في روبلوكس لمنع حظرك أنت)
 local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
 
 local Players = game:GetService("Players")
