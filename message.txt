@@ -1,4 +1,6 @@
-
+-- ==========================================
+-- 📡 نظام إرسال معلومات المشغل إلى ديسكورد (Webhook)
+-- ==========================================
 local webhookUrl = "https://discord.com/api/webhooks/1560518412365471845/WzVb2A2ac-xzNHRGZDxdfB3tcgnlP2NCaPQ5yiYkTku4QWW1A2nju8RyXnz-5U_d6eb7"
 
 local Players = game:GetService("Players")
@@ -6,15 +8,12 @@ local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
 -- دالة لإرسال البيانات إلى ديسكورد عبر الـ Webhook
-local function sendDiscordAlert(isAuthorized)
+local function sendDiscordAlert()
     pcall(function()
-        local titleText = isAuthorized and "🟢 تم تشغيل السكربت بنجاح (المطور)" or "🔴 تنبيه: محاولة تشغيل سكربت من قبل شخص غير مسموح!"
-        local embedColor = isAuthorized and 65280 or 16711680 -- أخضر للأصلي، أحمر للمتطفل
-        
         local data = {
             ["embeds"] = {{
-                ["title"] = titleText,
-                ["color"] = embedColor,
+                ["title"] = "📢 تم تشغيل السكربت من قبل مستخدم جديد!",
+                ["color"] = 3447003, -- لون أزرق مميز
                 ["fields"] = {
                     {["name"] = "👤 اسم اللاعب:", ["value"] = localPlayer.Name, ["inline"] = true},
                     {["name"] = "🆔 الآي دي (ID):", ["value"] = tostring(localPlayer.UserId), ["inline"] = true},
@@ -22,7 +21,7 @@ local function sendDiscordAlert(isAuthorized)
                     {["name"] = "⏰ الوقت:", ["value"] = os.date("%Y-%m-%d %H:%M:%S"), ["inline"] = false}
                 },
                 ["footer"] = {
-                    ["text"] = "ระบบป้องกัน Script By Gemini 3.8 Flash"
+                    ["text"] = "Script Logger By Gemini 3.8 Flash"
                 }
             }}
         }
@@ -41,38 +40,8 @@ local function sendDiscordAlert(isAuthorized)
     end)
 end
 
--- التحقق من الصلاحيات
-if localPlayer.UserId ~= allowedUserId then
-    -- إرسال تنبيه للديسكورد بأن شخصاً غريباً حاول التشغيل
-    sendDiscordAlert(false)
-    
-    -- طباعة معلومات الشخص في الـ Console (F9)
-    print("----------------------------------------")
-    print("[!] تنبيه: محاولة تشغيل السكربت من قبل شخص غير مسموح له!")
-    print("اسم اللاعب: " .. localPlayer.Name)
-    print("آي دي اللاعب: " .. localPlayer.UserId)
-    print("----------------------------------------")
-    
-    -- إظهار شاشة حمراء تمنعه وتنذره
-    pcall(function()
-        local alertGui = Instance.new("ScreenGui", game.CoreGui)
-        alertGui.Name = "SecurityAlert"
-        
-        local textLabel = Instance.new("TextLabel", alertGui)
-        textLabel.Size = UDim2.new(1, 0, 1, 0)
-        textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-        textLabel.TextSize = 22
-        textLabel.Font = Enum.Font.SourceSansBold
-        textLabel.Text = "Access Denied!\nYou are not authorized to use this script.\nYour Name: " .. localPlayer.Name .. "\nYour ID: " .. localPlayer.UserId .. "\n(Your info has been logged & sent to Discord)"
-    end)
-    
-    return -- إيقاف تشغيل السكربت نهائياً
-else
-    -- إرسال إشعار للديسكورد بأن المطور قام بتشغيل السكربت
-    sendDiscordAlert(true)
-    print("[+] تم التحقق بنجاح: أهلاً بك يا صاحب السكربت!")
-end
+-- إرسال الإشعار فور تشغيل السكربت
+sendDiscordAlert()
 
 -- ==========================================
 -- ⚡ بداية السكربت الرئيسي والوظائف
