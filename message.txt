@@ -1,4 +1,4 @@
-local allowedUserId = 123456789 -- استبدل الرقم بـ آي دي الحساب المسموح له
+local allowedUserId = 10520600074 -- استبدل الرقم بـ آي دي الحساب المسموح له
 
 if game.Players.LocalPlayer.UserId ~= allowedUserId then
     return -- إذا لم يكن الآي دي مطابِقاً، سيتوقف السكربت فوراً هنا ولن يكمل
