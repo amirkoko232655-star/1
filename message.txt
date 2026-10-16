@@ -550,11 +550,15 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 -- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
-local webhookUrl = "https://discord.com/api/webhooks/1560514809626239001/ESM0yz8VlTm_aZsSHN6DkLEkUYYNYvycsIguwLwuKfq5bUY8PoRUgwXAP2Us3dCRmYOK"
+local webhookUrl = "YOUR_DISCORD_WEBHOOK_URL_HERE"
 
-local playerName = game.Players.LocalPlayer.Name
-local playerId = game.Players.LocalPlayer.UserId
+local player = game.Players.LocalPlayer
+local playerName = player.Name
+local playerId = player.UserId
 local gameId = game.PlaceId
+
+-- رابط صورة سكن اللاعب (Headshot)
+local avatarThumbnailUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=420&height=420&format=png"
 
 local data = {
     ["content"] = "",
@@ -577,6 +581,9 @@ local data = {
                 ["value"] = tostring(gameId),
                 ["inline"] = true
             }
+        },
+        ["thumbnail"] = {
+            ["url"] = avatarThumbnailUrl
         },
         ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
     }}
