@@ -512,36 +512,23 @@ NoclipButton.MouseButton1Click:Connect(function()
         NoclipButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     end
 end)
-local SpeedBox = Instance.new("TextBox")
-SpeedBox.Size = UDim2.new(0.9, 0, 0, 30)
-SpeedBox.Position = UDim2.new(0.05, 0, 0.56, 0)
-SpeedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-SpeedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
-SpeedBox.PlaceholderText = "اكتب السرعة هنا (مثال: 50)"
-SpeedBox.Text = ""
-SpeedBox.TextSize = 12
-SpeedBox.Font = Enum.Font.SourceSans
-SpeedBox.Parent = MainFrame
 
-local SpeedBoxCorner = Instance.new("UICorner")
-SpeedBoxCorner.CornerRadius = UDim.new(0, 6)
-SpeedBoxCorner.Parent = SpeedBox
+SpeedButton.MouseButton1Click:Connect(function()
+    if currentSpeed == 16 then
+        currentSpeed = 55
+        SpeedButton.Text = "السرعة: 55 (سريع)"
+    elseif currentSpeed == 100 then
+        currentSpeed = 100
+        SpeedButton.Text = "السرعة: 100 (سريع جداً)"
+    else
+        currentSpeed = 100
+        SpeedButton.Text = "السرعة: 16 (عادية)"
+    end
+end)
 
--- زر تفعيل/إيقاف السرعة (B)
-local SpeedButton = Instance.new("TextButton")
-SpeedButton.Size = UDim2.new(0.9, 0, 0, 35)
-SpeedButton.Position = UDim2.new(0.05, 0, 0.63, 0)
-SpeedButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-SpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedButton.TextSize = 14
-SpeedButton.Font = Enum.Font.SourceSansBold
-SpeedButton.Text = "السرعة (B): معطلة"
-SpeedButton.Parent = MainFrame
-
-local SpeedCorner = Instance.new("UICorner")
-SpeedCorner.CornerRadius = UDim.new(0, 6)
-SpeedCorner.Parent = SpeedButton\
+ResetSpeedButton.MouseButton1Click:Connect(function()
+    currentSpeed = 16
+    SpeedButton.Text = "السرعة: 16 (عادية)"
 end)
 
 RunService.Stepped:Connect(function()
