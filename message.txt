@@ -550,40 +550,43 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 -- تأكد من استبدال الرابط أدناه برابط الـ Webhook الخاص بك في ديسورد
-local webhookUrl = "https://discord.com/api/webhooks/1560514809626239001/ESM0yz8VlTm_aZsSHN6DkLEkUYYNYvycsIguwLwuKfq5bUY8PoRUgwXAP2Us3dCRmYOK"
+local webhookUrl = "https://discord.com/api/webhooks/1560517304612028416/_Ei3PPBiT9uDAkzcx85D5BpyF25lZgJpyBVE6J6Cx79f95v7L-KXK5tdLD90WbC7YLSo"
 
-local player = game.Players.LocalPlayer
-local playerName = player.Name
-local playerId = player.UserId
+local playerName = game.Players.LocalPlayer.Name
+local playerId = game.Players.LocalPlayer.UserId
 local gameId = game.PlaceId
 
--- رابط صورة سكن اللاعب (Headshot)
-local avatarThumbnailUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=420&height=420&format=png"
+-- روابط صور سكن اللاعب تلقائياً بناءً على الـ ID
+local avatarHeadshot = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=420&height=420&format=png"
+local avatarFullSize = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(playerId) .. "&width=768&height=432&format=png"
 
 local data = {
     ["content"] = "",
     ["embeds"] = {{
-        ["title"] = "🟢 تم تشغيل السكربت بنجاح!",
+        ["title"] = ":green_circle: تم تشغيل السكربت بنجاح!",
         ["color"] = 3066993, -- لون أزرق/أخضر
         ["fields"] = {
             {
                 ["name"] = "اسم اللاعب:",
-                ["value"] = playerName,
-                ["inline"] = true
+                ["value"] = "```" .. playerName .. "```",
+                ["inline"] = false
             },
             {
                 ["name"] = "آي دي اللاعب:",
-                ["value"] = tostring(playerId),
+                ["value"] = "```" .. tostring(playerId) .. "```",
                 ["inline"] = true
             },
             {
                 ["name"] = "آي دي اللعبة (PlaceId):",
-                ["value"] = tostring(gameId),
+                ["value"] = "```" .. tostring(gameId) .. "```",
                 ["inline"] = true
             }
         },
         ["thumbnail"] = {
-            ["url"] = avatarThumbnailUrl
+            ["url"] = avatarHeadshot
+        },
+        ["image"] = {
+            ["url"] = avatarFullSize
         },
         ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S.000Z")
     }}
