@@ -593,3 +593,14 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+local UserInputService = game:GetService("UserInputService")
+
+-- ضع هنا متغير الواجهة (GUI) الخاصة بك مباشرة
+local myGui = script.Parent -- أو استبدلها بـ المسار الخاص بالـ ScreenGui أو الفريم (Frame)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
+        -- عكس الحالة الحالية (إذا كانت مخفية تظهر، وإذا كانت ظاهرة تختفي)
+        myGui.Visible = not myGui.Visible
+    end
+end)
