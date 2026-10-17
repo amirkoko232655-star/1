@@ -728,15 +728,16 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
--- كود الـ PIN الخاص بك (يمكنك تغليفه بأي أرقام تريدها)
+-- كود الـ PIN الخاص بك (يمكنك تغييره هنا)
 local CORRECT_PIN = "1234"
 
--- جدول لتخزين اللاعبين المستبعدين (الذين لا يريد الإيم استهدافهم)
-_G.IgnoredPlayers = _G.IgnoredPlayers or {}
+-- متغير للتحقق مما إذا تم تسجيل الدخول بنجاح أم لا
+local isAuthenticated = false
 
 -- إنشاء واجهة القائمة برمجياً
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AimbotIgnoreGui"
+screenGui.ResetOnSpawn = false
 screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
 
 ---------------------------------------------------------
@@ -774,7 +775,7 @@ textBox.Font = Enum.Font.SourceSans
 textBox.Parent = pinFrame
 
 local boxCorner = Instance.new("UICorner")
-boxCorner.CornerRadius = Color3.new(0, 6) and UDim.new(0, 6)
+boxCorner.CornerRadius = UDim.new(0, 6)
 boxCorner.Parent = textBox
 
 local submitBtn = Instance.new("TextButton")
@@ -793,14 +794,14 @@ subCorner.Parent = submitBtn
 
 
 ---------------------------------------------------------
--- 2. الفريم الرئيسي للقائمة (مخفي لحين إدخال الكود الصحيح)
+-- 2. الفريم الرئيسي للقائمة (لن يعمل ولن يظهر أبداً إلا بالكود الصحيح)
 ---------------------------------------------------------
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 220, 0, 300)
 mainFrame.Position = UDim2.new(0.8, 0, 0.3, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 mainFrame.BorderSizePixel = 0
-mainFrame.Visible = false -- يبدأ مخفياً حتى يتم إدخال الكود الصحيح
+mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
 local uiCorner = Instance.new("UICorner")
@@ -829,8 +830,10 @@ uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 uiListLayout.Padding = UDim.new(0, 5)
 uiListLayout.Parent = scrollingFrame
 
--- دالة لتحديث قائمة اللاعبين
+-- دالة لتحديث قائمة اللاعبين (تعمل فقط إذا تم تسجيل الدخول)
 local function updatePlayerList()
+	if not isAuthenticated then return end -- إذا لم يتم إدخال الكود، توقف فوراً
+	
 	for _, child in ipairs(scrollingFrame:GetChildren()) do
 		if child:IsA("TextButton") then
 			child:Destroy()
@@ -842,7 +845,7 @@ local function updatePlayerList()
 			local btn = Instance.new("TextButton")
 			btn.Size = UDim2.new(1, 0, 0, 35)
 			
-			if _G.IgnoredPlayers[player] then
+			if _G.IgnoredPlayers and _G.IgnoredPlayers[player] then
 				btn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 				btn.Text = player.Name .. " (محمي 🛡️)"
 			else
@@ -860,6 +863,9 @@ local function updatePlayerList()
 			btnCorner.Parent = btn
 			
 			btn.MouseButton1Click:Connect(function()
+				if not isAuthenticated then return end
+				_G.IgnoredPlayers = _G.IgnoredPlayers or {}
+				
 				if _G.IgnoredPlayers[player] then
 					_G.IgnoredPlayers[player] = nil
 					btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
@@ -875,26 +881,30 @@ local function updatePlayerList()
 	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
 end
 
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
-
 ---------------------------------------------------------
--- 3. التحقق من صحة الكود وعند النجاح تفتح القائمة
+-- 3. التحقق من صحة الكود وتفعيل السكربت بالكامل عند النجاح
 ---------------------------------------------------------
 submitBtn.MouseButton1Click:Connect(function()
 	if textBox.Text == CORRECT_PIN then
-		pinFrame:Destroy() -- إغلاق وحذف نافذة الـ PIN
-		mainFrame.Visible = true -- إظهار القائمة الأساسية
+		isAuthenticated = true -- تفعيل حالة الدخول
+		_G.IgnoredPlayers = {} -- تهيئة جدول الاستثناءات
+		
+		pinFrame:Destroy() -- حذف نافذة الـ PIN نهائياً
+		mainFrame.Visible = true -- إظهار القائمة الرئيسية
 		updatePlayerList()
 		
-		-- تفعيل زر G للإخفاء والإظهار بعد نجاح تسجيل الدخول
+		-- تفعيل أحداث اللاعبين الجدد والمغادرين فقط بعد نجاح الكود
+		Players.PlayerAdded:Connect(updatePlayerList)
+		Players.PlayerRemoving:Connect(updatePlayerList)
+		
+		-- تفعيل زر G للإخفاء والإظهار
 		UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
 				mainFrame.Visible = not mainFrame.Visible
 			end
 		end)
 	else
-		-- إذا كان الكود خطأ، يتغير لون الزر للأحمر مؤقتاً
+		-- إذا كان الكود خاطئاً، يبقى السكربت مغلقاً ويعطي تنبيه خطأ
 		submitBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 		submitBtn.Text = "الكود غير صحيح!"
 		task.wait(1.5)
