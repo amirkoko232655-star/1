@@ -1,1 +1,169 @@
+-- [[ script-AC: Full Control Script (Speed, Aimbot, FOV, Fly) ]] --
 
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+-- إعدادات القائمة (script-AC Settings)
+local Settings = {
+    -- سرعة اللاعب
+    SpeedEnabled = false,
+    SpeedValue = 16,
+    
+    -- التتبع (Aimbot)
+    AimbotEnabled = false, -- زر التشغيل والإيقاف للإيم
+    
+    -- دائرة الـ FOV
+    FOVEnabled = true,
+    FOVSize = 100,
+    FOVColor = Color3.fromRGB(255, 255, 255),
+    
+    -- الطيران (Fly)
+    FlyEnabled = false,
+    FlySpeed = 50
+}
+
+-- رسم دائرة الـ FOV
+local FOVCircle = nil
+pcall(function()
+    FOVCircle = Drawing.new("Circle")
+    FOVCircle.Visible = false
+    FOVCircle.Thickness = 1
+    FOVCircle.NumSides = 64
+    FOVCircle.Filled = false
+end)
+
+-- ==========================================
+-- 1. نظام تعديل السرعة (من 0 إلى 5000)
+-- ==========================================
+RunService.Heartbeat:Connect(function()
+    if Settings.SpeedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = Settings.SpeedValue
+    end
+end)
+
+local function ToggleSpeed(state)
+    Settings.SpeedEnabled = state
+end
+
+local function SetSpeedValue(value)
+    Settings.SpeedValue = math.clamp(value, 0, 5000)
+end
+
+-- ==========================================
+-- 2. نظام التتبع (Aimbot - تشغيل وإيقاف)
+-- ==========================================
+local function ToggleAimbot(state)
+    Settings.AimbotEnabled = state
+end
+
+local function GetClosestPlayer()
+    local target = nil
+    local shortestDist = Settings.FOVSize
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            if humanoid and humanoid.Health > 0 then
+                local pos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
+                if onScreen then
+                    local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        target = player.Character.Head
+                    end
+                end
+            end
+        end
+    end
+    return target
+end
+
+-- ==========================================
+-- 3. إعدادات دائرة الـ FOV (إخفاء/إظهار، حجم، لون)
+-- ==========================================
+local function ToggleFOV(state)
+    Settings.FOVEnabled = state
+end
+
+local function SetFOVSize(size)
+    Settings.FOVSize = size
+end
+
+local function SetFOVColor(color)
+    Settings.FOVColor = color
+end
+
+-- ==========================================
+-- 4. نظام الطيران (Fly - تشغيل وإيقاف)
+-- ==========================================
+local flying = false
+local flyConnection
+
+local function ToggleFly(state)
+    Settings.FlyEnabled = state
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local rootPart = character.HumanoidRootPart
+    
+    if Settings.FlyEnabled then
+        flying = true
+        local bv = Instance.new("BodyVelocity")
+        bv.Name = "script-AC_FlyVelocity"
+        bv.Parent = rootPart
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        
+        local bg = Instance.new("BodyGyro")
+        bg.Name = "script-AC_FlyGyro"
+        bg.Parent = rootPart
+        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        
+        flyConnection = RunService.RenderStepped:Connect(function()
+            if not flying or not character or not rootPart then return end
+            bv.Velocity = Vector3.new(0, 0, 0)
+            bg.CFrame = Camera.CFrame
+            
+            local moveDir = Vector3.new()
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
+            
+            bv.Velocity = moveDir * Settings.FlySpeed
+        end)
+    else
+        flying = false
+        if flyConnection then flyConnection:Disconnect() end
+        if rootPart:FindFirstChild("script-AC_FlyVelocity") then rootPart.script-AC_FlyVelocity:Destroy() end
+        if rootPart:FindFirstChild("script-AC_FlyGyro") then rootPart.script-AC_FlyGyro:Destroy() end
+    end
+end
+
+-- التحديث المستمر للرسم والتتبع
+RunService.RenderStepped:Connect(function()
+    -- تحديث الـ FOV
+    if FOVCircle then
+        FOVCircle.Visible = Settings.FOVEnabled and Settings.AimbotEnabled
+        FOVCircle.Radius = Settings.FOVSize
+        FOVCircle.Color = Settings.FOVColor
+        FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    end
+    
+    -- تشغيل الإيم إذا كان مفعلًا
+    if Settings.AimbotEnabled then
+        local targetHead = GetClosestPlayer()
+        if targetHead then
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetHead.Position)
+        end
+    end
+end)
+
+print("[script-AC] Fully Loaded & Ready!")
