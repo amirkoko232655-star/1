@@ -68,44 +68,6 @@ subCorner.CornerRadius = UDim.new(0, 6)
 subCorner.Parent = submitBtn
 
 
----------------------------------------------------------
--- 2. الفريم الرئيسي للقائمة (لن يعمل ولن يظهر أبداً إلا بالكود الصحيح)
----------------------------------------------------------
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 220, 0, 300)
-mainFrame.Position = UDim2.new(0.8, 0, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-mainFrame.BorderSizePixel = 0
-mainFrame.Visible = false
-mainFrame.Parent = screenGui
-
-local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 8)
-uiCorner.Parent = mainFrame
-
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0, 40)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "قائمة استثناء الإيم (G للإخفاء)"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 13
-titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Parent = mainFrame
-
-local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, -10, 1, -50)
-scrollingFrame.Position = UDim2.new(0, 5, 0, 45)
-scrollingFrame.BackgroundTransparency = 1
-scrollingFrame.BorderSizePixel = 0
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-scrollingFrame.Parent = mainFrame
-
-local uiListLayout = Instance.new("UIListLayout")
-uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Padding = UDim.new(0, 5)
-uiListLayout.Parent = scrollingFrame
-
--- دالة لتحديث قائمة اللاعبين (تعمل فقط إذا تم تسجيل الدخول)
 
 ---------------------------------------------------------
 -- 3. التحقق من صحة الكود وتفعيل السكربت بالكامل عند النجاح
