@@ -595,12 +595,52 @@ RunService.RenderStepped:Connect(function()
 end)
 local UserInputService = game:GetService("UserInputService")
 
--- ضع هنا متغير الواجهة (GUI) الخاصة بك مباشرة
+-- ضع هنا متغير الواجهة (g) الخاصة بك مباشرة
 local myGui = script.Parent -- أو استبدلها بـ المسار الخاص بالـ ScreenGui أو الفريم (Frame)
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
         -- عكس الحالة الحالية (إذا كانت مخفية تظهر، وإذا كانت ظاهرة تختفي)
         myGui.Visible = not myGui.Visible
+    end
+end)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- افترض أن لديك TextBox لكتابة السرعة وزر للتطبيق داخل الواجهة
+local screenGui = script.Parent -- أو مسار الـ GUI لديك
+local textBox = screenGui:WaitForChild("TextBox") -- خانة كتابة الرقم
+local applyButton = screenGui:WaitForChild("TextButton") -- زر التطبيق
+
+applyButton.MouseButton1Click:Connect(function()
+    -- تحويل النص المكتوب إلى رقم
+    local speedValue = tonumber(textBox.Text)
+    
+    if speedValue then
+        humanoid.WalkSpeed = speedValue
+        print("تم تغيير السرعة إلى: " .. speedValue)
+    else
+        print("الرجاء إدخال رقم صحيح!")
+    end
+end)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- افترض أن لديك TextBox لكتابة السرعة وزر للتطبيق داخل الواجهة
+local screenGui = script.Parent -- أو مسار الـ GUI لديك
+local textBox = screenGui:WaitForChild("TextBox") -- خانة كتابة الرقم
+local applyButton = screenGui:WaitForChild("TextButton") -- زر التطبيق
+
+applyButton.MouseButton1Click:Connect(function()
+    -- تحويل النص المكتوب إلى رقم
+    local speedValue = tonumber(textBox.Text)
+    
+    if speedValue then
+        humanoid.WalkSpeed = speedValue
+        print("تم تغيير السرعة إلى: " .. speedValue)
+    else
+        print("الرجاء إدخال رقم صحيح!")
     end
 end)
