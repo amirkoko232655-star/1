@@ -729,7 +729,7 @@ local UserInputService = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
 
 -- كود الـ PIN الخاص بك (يمكنك تغييره هنا)
-local CORRECT_PIN = "1234"
+local CORRECT_PIN = "2018"
 
 -- متغير للتحقق مما إذا تم تسجيل الدخول بنجاح أم لا
 local isAuthenticated = false
