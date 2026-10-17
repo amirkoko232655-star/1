@@ -724,3 +724,181 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 end)
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local localPlayer = Players.LocalPlayer
+
+-- كود الـ PIN الخاص بك (يمكنك تغليفه بأي أرقام تريدها)
+local CORRECT_PIN = "1234"
+
+-- جدول لتخزين اللاعبين المستبعدين (الذين لا يريد الإيم استهدافهم)
+_G.IgnoredPlayers = _G.IgnoredPlayers or {}
+
+-- إنشاء واجهة القائمة برمجياً
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AimbotIgnoreGui"
+screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+
+---------------------------------------------------------
+-- 1. نافذة إدخال كود الـ PIN
+---------------------------------------------------------
+local pinFrame = Instance.new("Frame")
+pinFrame.Size = UDim2.new(0, 250, 0, 160)
+pinFrame.Position = UDim2.new(0.5, -125, 0.5, -80)
+pinFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+pinFrame.BorderSizePixel = 0
+pinFrame.Parent = screenGui
+
+local pinCorner = Instance.new("UICorner")
+pinCorner.CornerRadius = UDim.new(0, 10)
+pinCorner.Parent = pinFrame
+
+local pinTitle = Instance.new("TextLabel")
+pinTitle.Size = UDim2.new(1, 0, 0, 40)
+pinTitle.BackgroundTransparency = 1
+pinTitle.Text = "الرجاء إدخال كود الـ PIN"
+pinTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+pinTitle.TextSize = 15
+pinTitle.Font = Enum.Font.SourceSansBold
+pinTitle.Parent = pinFrame
+
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0.8, 0, 0, 35)
+textBox.Position = UDim2.new(0.1, 0, 0, 50)
+textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.PlaceholderText = "اكتب الكود هنا..."
+textBox.Text = ""
+textBox.TextSize = 14
+textBox.Font = Enum.Font.SourceSans
+textBox.Parent = pinFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = Color3.new(0, 6) and UDim.new(0, 6)
+boxCorner.Parent = textBox
+
+local submitBtn = Instance.new("TextButton")
+submitBtn.Size = UDim2.new(0.8, 0, 0, 35)
+submitBtn.Position = UDim2.new(0.1, 0, 0, 100)
+submitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 127)
+submitBtn.Text = "تحقق"
+submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitBtn.TextSize = 14
+submitBtn.Font = Enum.Font.SourceSansBold
+submitBtn.Parent = pinFrame
+
+local subCorner = Instance.new("UICorner")
+subCorner.CornerRadius = UDim.new(0, 6)
+subCorner.Parent = submitBtn
+
+
+---------------------------------------------------------
+-- 2. الفريم الرئيسي للقائمة (مخفي لحين إدخال الكود الصحيح)
+---------------------------------------------------------
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 220, 0, 300)
+mainFrame.Position = UDim2.new(0.8, 0, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = false -- يبدأ مخفياً حتى يتم إدخال الكود الصحيح
+mainFrame.Parent = screenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "قائمة استثناء الإيم (G للإخفاء)"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 13
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = mainFrame
+
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, -10, 1, -50)
+scrollingFrame.Position = UDim2.new(0, 5, 0, 45)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.Parent = mainFrame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0, 5)
+uiListLayout.Parent = scrollingFrame
+
+-- دالة لتحديث قائمة اللاعبين
+local function updatePlayerList()
+	for _, child in ipairs(scrollingFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= localPlayer then
+			local btn = Instance.new("TextButton")
+			btn.Size = UDim2.new(1, 0, 0, 35)
+			
+			if _G.IgnoredPlayers[player] then
+				btn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+				btn.Text = player.Name .. " (محمي 🛡️)"
+			else
+				btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+				btn.Text = player.Name
+			end
+			
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			btn.TextSize = 14
+			btn.Font = Enum.Font.SourceSans
+			btn.Parent = scrollingFrame
+			
+			local btnCorner = Instance.new("UICorner")
+			btnCorner.CornerRadius = UDim.new(0, 6)
+			btnCorner.Parent = btn
+			
+			btn.MouseButton1Click:Connect(function()
+				if _G.IgnoredPlayers[player] then
+					_G.IgnoredPlayers[player] = nil
+					btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+					btn.Text = player.Name
+				else
+					_G.IgnoredPlayers[player] = true
+					btn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+					btn.Text = player.Name .. " (محمي 🛡️)"
+				end
+			end)
+		end
+	end
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+end
+
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+---------------------------------------------------------
+-- 3. التحقق من صحة الكود وعند النجاح تفتح القائمة
+---------------------------------------------------------
+submitBtn.MouseButton1Click:Connect(function()
+	if textBox.Text == CORRECT_PIN then
+		pinFrame:Destroy() -- إغلاق وحذف نافذة الـ PIN
+		mainFrame.Visible = true -- إظهار القائمة الأساسية
+		updatePlayerList()
+		
+		-- تفعيل زر G للإخفاء والإظهار بعد نجاح تسجيل الدخول
+		UserInputService.InputBegan:Connect(function(input, gameProcessed)
+			if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
+				mainFrame.Visible = not mainFrame.Visible
+			end
+		end)
+	else
+		-- إذا كان الكود خطأ، يتغير لون الزر للأحمر مؤقتاً
+		submitBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+		submitBtn.Text = "الكود غير صحيح!"
+		task.wait(1.5)
+		submitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 127)
+		submitBtn.Text = "تحقق"
+	end
+end)
