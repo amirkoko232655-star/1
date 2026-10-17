@@ -207,31 +207,48 @@ NoclipCorner.CornerRadius = UDim.new(0, 6)
 NoclipCorner.Parent = NoclipButton
 
 -- زر زيادة السرعة
-local SpeedButton = Instance.new("TextButton")
-SpeedButton.Size = UDim2.new(0.9, 0, 0, 35)
-SpeedButton.Position = UDim2.new(0.05, 0, 0.56, 0)
-SpeedButton.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
-SpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SpeedButton.TextSize = 14
-SpeedButton.Font = Enum.Font.SourceSansBold
-SpeedButton.Text = "السرعة: 16 (عادية)"
-SpeedButton.Parent = MainFrame
+---------------------------------------------------------
+-- 🚀 نظام السرعة الجديد (TextBox + زر تطبيق)
+---------------------------------------------------------
+local SpeedBox = Instance.new("TextBox")
+SpeedBox.Size = UDim2.new(0.55, 0, 0, 35)
+SpeedBox.Position = UDim2.new(0.05, 0, 0.51, 0) -- ضع الموقع المناسب في الفريم لديك
+SpeedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedBox.PlaceholderText = "اكتب السرعة..."
+SpeedBox.Text = "16"
+SpeedBox.TextSize = 13
+SpeedBox.Font = Enum.Font.SourceSans
+SpeedBox.Parent = MainFrame
 
-local SpeedCorner = Instance.new("UICorner")
-SpeedCorner.CornerRadius = UDim.new(0, 6)
-SpeedCorner.Parent = SpeedButton
+local SpeedBoxCorner = Instance.new("UICorner")
+SpeedBoxCorner.CornerRadius = UDim.new(0, 6)
+SpeedBoxCorner.Parent = SpeedBox
 
--- زر إعادة تعيين السرعة
-local ResetSpeedButton = Instance.new("TextButton")
-ResetSpeedButton.Size = UDim2.new(0.9, 0, 0, 30)
-ResetSpeedButton.Position = UDim2.new(0.05, 0, 0.65, 0)
-ResetSpeedButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-ResetSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ResetSpeedButton.TextSize = 12
-ResetSpeedButton.Font = Enum.Font.SourceSans
-ResetSpeedButton.Text = "إعادة تعيين السرعة"
-ResetSpeedButton.Parent = MainFrame
+local SpeedApplyBtn = Instance.new("TextButton")
+SpeedApplyBtn.Size = UDim2.new(0.32, 0, 0, 35)
+SpeedApplyBtn.Position = UDim2.new(0.63, 0, 0.51, 0) -- بجانب خانة الكتابة
+SpeedApplyBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+SpeedApplyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpeedApplyBtn.TextSize = 13
+SpeedApplyBtn.Font = Enum.Font.SourceSansBold
+SpeedApplyBtn.Text = "تطبيق"
+SpeedApplyBtn.Parent = MainFrame
 
+local SpeedApplyCorner = Instance.new("UICorner")
+SpeedApplyCorner.CornerRadius = UDim.new(0, 6)
+SpeedApplyCorner.Parent = SpeedApplyBtn
+
+-- دالة لتطبيق السرعة عند الضغط على الزر
+SpeedApplyBtn.MouseButton1Click:Connect(function()
+    local num = tonumber(SpeedBox.Text)
+    if num then
+        currentSpeed = num
+    else
+        currentSpeed = 16
+        SpeedBox.Text = "16"
+    end
+end)
 local ResetCorner = Instance.new("UICorner")
 ResetCorner.CornerRadius = UDim.new(0, 6)
 ResetCorner.Parent = ResetSpeedButton
